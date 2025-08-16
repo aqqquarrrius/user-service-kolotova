@@ -1,17 +1,27 @@
 package com.example.userservice;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import java.util.List;
 import java.util.Optional;
 
 public class UserDaoImpl implements UserDao {
+    private final SessionFactory sessionFactory;
+
+    public UserDaoImpl(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+    public UserDaoImpl() {
+        this(HibernateUtil.getSessionFactory());
+    }
+
 
     @Override
     public User create(User user) {
         Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
             session.persist(user);
             tx.commit();
@@ -24,14 +34,14 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> getById(Long id) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             return Optional.ofNullable(session.get(User.class, id));
         }
     }
 
     @Override
     public List<User> getAll() {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             return session.createQuery("from User", User.class).list();
         }
     }
@@ -39,7 +49,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void update(User user) {
         Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
             session.merge(user);
             tx.commit();
@@ -52,7 +62,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void delete(Long id) {
         Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
             User user = session.get(User.class, id);
             if (user != null) {

@@ -8,13 +8,21 @@
 - Hibernate ORM
 - PostgreSQL
 - Maven
+- JUnit
+- Mockito
+- Testcontainers (для IT)
+- Docker (для запуска тестовой базы)
 
-## Как запустить
-1. Настройте базу PostgreSQL и параметры подключения в hibernate.cfg.xml.
-2. Запустите класс UserServiceConsoleApp через IDE или команду mvn exec:java.
-3. Воспользуйтесь меню для управления пользователями.
+## Настройка и запуск
+1. Установить PostgreSQL и создать базу данных (или использовать Docker).
+2. Настроить доступ к БД в HibernateUtil.java (или использовать Testcontainers для тестов).
+3. Сборка проекта через Maven:
+   `bash
+   mvn clean install
+
 
 ## Структура проекта
 - src/main/java — исходный код
 - src/main/resources — конфигурационные файлы
 - hibernate.cfg.xml — конфигурация Hibernate
+- src/test/java — юнит-тесты и интеграционные тесты
