@@ -110,7 +110,7 @@ class UserServiceTest {
     void getAllUsers_success() {
         List<User> users = Arrays.asList(
                 newUser(TEST_NAME, TEST_EMAIL, TEST_AGE),
-                new User(UPDATED_NAME, UPDATED_EMAIL, TEST_AGE)
+                newUser(UPDATED_NAME, UPDATED_EMAIL, TEST_AGE)
         );
         when(userDao.getAll()).thenReturn(users);
 
