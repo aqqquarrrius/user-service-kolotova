@@ -1,5 +1,6 @@
 package com.example.userservice;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -38,7 +39,7 @@ public class UserDaoImplIT {
     void cleanDatabase() {
         try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
-            session.createQuery("DELETE FROM User").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
             tx.commit();
         }
     }
@@ -49,46 +50,78 @@ public class UserDaoImplIT {
         postgresContainer.stop();
     }
 
+    private User createTestUser(String name, String email, int age) {
+        return new User(name, email, age);
+    }
+
     @Test
     void createUser_success() {
-        User user = new User("Aqua", "aqua@example.com", 25);
+        String name = "Aqua";
+        String email = "aqua@example.com";
+        int age = 25;
+        User user = createTestUser(name, email, age);
+
         User saved = userDao.create(user);
 
-        assertNotNull(saved.getId());
-        assertEquals("Aqua", saved.getName());
+        assertAll(
+                () -> assertNotNull(saved.getId()),
+                () -> assertEquals(name, saved.getName()),
+                () -> assertEquals(email, saved.getEmail()),
+                () -> assertEquals(age, saved.getAge())
+        );
     }
 
     @Test
     void getById_success() {
-        User user = userDao.create(new User("Bob", "bob@example.com", 30));
+        String name = "Bob";
+        String email = "bob@example.com";
+        int age = 30;
+        User user = userDao.create(createTestUser(name, email, age));
+
         Optional<User> found = userDao.getById(user.getId());
 
-        assertTrue(found.isPresent());
-        assertEquals("Bob", found.get().getName());
+        assertAll(
+                () -> assertTrue(found.isPresent()),
+                () -> assertEquals(name, found.get().getName()),
+                () -> assertEquals(email, found.get().getEmail()),
+                () -> assertEquals(age, found.get().getAge())
+        );
     }
 
     @Test
     void getAll_success() {
-        userDao.create(new User("Charlie", "charlie@example.com", 22));
-        userDao.create(new User("Diana", "diana@example.com", 28));
+        userDao.create(createTestUser("Charlie", "charlie@example.com", 22));
+        userDao.create(createTestUser("Diana", "diana@example.com", 28));
 
         List<User> users = userDao.getAll();
-        assertEquals(2, users.size());
+
+        assertAll(
+                () -> assertEquals(2, users.size()),
+                () -> assertTrue(users.stream().anyMatch(u-> u.getName().equals("Charlie"))),
+                () -> assertTrue(users.stream().anyMatch(u-> u.getName().equals("Diana")))
+        );
+
+
     }
 
     @Test
     void updateUser_success() {
-        User user = userDao.create(new User("Eve", "eve@example.com", 35));
-        user.setName("Evelyn");
+        String newName = "Evelyn";
+        User user = userDao.create(createTestUser("Eve", "eve@example.com", 35));
+        user.setName(newName);
         userDao.update(user);
 
         Optional<User> updated = userDao.getById(user.getId());
-        assertEquals("Evelyn", updated.get().getName());
+
+        assertAll(
+                () -> assertTrue(updated.isPresent()),
+                () -> assertEquals(newName, updated.get().getName())
+        );
     }
 
     @Test
     void deleteUser_success() {
-        User user = userDao.create(new User("Frank", "frank@example.com", 40));
+        User user = userDao.create(createTestUser("Frank", "frank@example.com", 40));
         userDao.delete(user.getId());
 
         Optional<User> deleted = userDao.getById(user.getId());
