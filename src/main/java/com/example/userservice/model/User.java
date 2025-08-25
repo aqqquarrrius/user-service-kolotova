@@ -1,4 +1,4 @@
-package com.example.userservice;
+package com.example.userservice.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -23,7 +23,14 @@ public class User {
     private LocalDateTime createdAt;
 
     public User() {
-        // Пустой конструктор нужен Hibernate
+    }
+
+    public User(Long id, String name, String email, Integer age) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.age = age;
+        this.createdAt = LocalDateTime.now();
     }
 
     public User(String name, String email, Integer age) {
@@ -33,8 +40,10 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    // геттеры и сеттеры
+
     public Long getId() { return id; }
+    public void setId(Long id) {this.id = id;}
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
